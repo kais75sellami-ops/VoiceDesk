@@ -27,7 +27,7 @@ const Header: React.FC<HeaderProps> = ({ onSettingsClick }) => {
           </svg>
           <h1>VoiceDesk</h1>
         </div>
-        <button className="settings-button" onClick={onSettingsClick} title="Settings">
+        <button className="settings-button" onClick={onSettingsClick} title="Paramètres">
           <svg
             width="24"
             height="24"

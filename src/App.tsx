@@ -5,11 +5,14 @@ import SettingsModal from './components/SettingsModal';
 import TextInput from './components/TextInput';
 import LanguageSelector from './components/LanguageSelector';
 import AudioPlayer from './components/AudioPlayer';
-import { ApiResponse, LANGUAGES } from './types';
+import VoiceSettings from './components/VoiceSettings';
+import BreakControls, { BreakSettings } from './components/BreakControls';
+import { ApiResponse, LANGUAGES, VoiceSettings as VoiceSettingsType, DEFAULT_VOICE_SETTINGS } from './types';
 
 function App() {
   const [text, setText] = useState('');
   const [language, setLanguage] = useState(LANGUAGES[0].code);
+  const [voiceSettings, setVoiceSettings] = useState<VoiceSettingsType>(DEFAULT_VOICE_SETTINGS);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [audioData, setAudioData] = useState<string | null>(null);
@@ -34,7 +37,7 @@ function App() {
 
   const handleGenerate = async () => {
     if (!text.trim()) {
-      setError('Please enter some text');
+      setError('Veuillez entrer du texte');
       return;
     }
 
@@ -47,16 +50,17 @@ function App() {
         request: {
           text: text.trim(),
           language,
+          voice_settings: voiceSettings,
         },
       });
 
       if (response.success && response.data) {
         setAudioData(response.data);
       } else {
-        setError(response.error || 'Failed to generate audio');
+        setError(response.error || 'Échec de la génération audio');
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An unexpected error occurred');
+      setError(err instanceof Error ? err.message : 'Une erreur inattendue s\'est produite');
     } finally {
       setIsLoading(false);
     }
@@ -67,6 +71,26 @@ function App() {
     checkApiKey();
   };
 
+  const handleApplyBreaks = (settings: BreakSettings) => {
+    // Supprimer toutes les anciennes balises <break time="..."/>
+    let newText = text.replace(/<break time="[^"]*"\/>/g, '');
+
+    // Utiliser des placeholders temporaires pour éviter les conflits
+    const COMMA_PLACEHOLDER = '###COMMA_BREAK###';
+    const PERIOD_PLACEHOLDER = '###PERIOD_BREAK###';
+
+    // Remplacer virgules et points par des placeholders
+    newText = newText.replace(/,/g, COMMA_PLACEHOLDER);
+    newText = newText.replace(/\.{3,}/g, PERIOD_PLACEHOLDER); // Points de suspension (3 ou +)
+    newText = newText.replace(/\./g, PERIOD_PLACEHOLDER); // Points simples
+
+    // Remplacer les placeholders par les vraies balises
+    newText = newText.replace(new RegExp(COMMA_PLACEHOLDER, 'g'), `<break time="${settings.commaBreak.toFixed(1)}s"/>`);
+    newText = newText.replace(new RegExp(PERIOD_PLACEHOLDER, 'g'), `<break time="${settings.periodBreak.toFixed(1)}s"/>`);
+
+    setText(newText);
+  };
+
   return (
     <div className="app">
       <Header onSettingsClick={() => setShowSettings(true)} />
@@ -74,6 +98,8 @@ function App() {
       <main className="main-content">
         <div className="content-wrapper">
           <TextInput value={text} onChange={setText} disabled={isLoading} />
+
+          <BreakControls onApply={handleApplyBreaks} disabled={isLoading} />
 
           <div className="controls">
             <LanguageSelector
@@ -86,9 +112,15 @@ function App() {
               onClick={handleGenerate}
               disabled={isLoading || !text.trim()}
             >
-              {isLoading ? 'Generating...' : 'Generate Speech'}
+              {isLoading ? 'Génération en cours...' : 'Générer la voix'}
             </button>
           </div>
+
+          <VoiceSettings
+            values={voiceSettings}
+            onChange={setVoiceSettings}
+            disabled={isLoading}
+          />
 
           {error && (
             <div className="error-message">

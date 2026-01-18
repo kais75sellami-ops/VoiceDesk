@@ -2,7 +2,6 @@ use base64::{engine::general_purpose, Engine as _};
 use keyring::Entry;
 use reqwest::blocking::Client;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use tauri::AppHandle;
 use tauri_plugin_dialog::DialogExt;
 
@@ -15,9 +14,17 @@ const VOICE_ID: &str = "podfxsRIe2hbXsMfBAMz";
 const ELEVENLABS_API_URL: &str = "https://api.elevenlabs.io/v1/text-to-speech";
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct VoiceSettings {
+    pub stability: f32,
+    pub similarity_boost: f32,
+    pub style: f32,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct GenerateTtsRequest {
     pub text: String,
     pub language: String,
+    pub voice_settings: VoiceSettings,
 }
 
 #[derive(Debug, Serialize)]
@@ -51,9 +58,9 @@ pub fn get_api_key() -> ApiResponse<String> {
     match Entry::new(SERVICE_NAME, USERNAME) {
         Ok(entry) => match entry.get_password() {
             Ok(password) => ApiResponse::success(password),
-            Err(_) => ApiResponse::error("API key not found. Please set it in Settings.".to_string()),
+            Err(_) => ApiResponse::error("Clé API introuvable. Veuillez la configurer dans Paramètres.".to_string()),
         },
-        Err(e) => ApiResponse::error(format!("Keyring error: {}", e)),
+        Err(e) => ApiResponse::error(format!("Erreur trousseau : {}", e)),
     }
 }
 
@@ -61,15 +68,15 @@ pub fn get_api_key() -> ApiResponse<String> {
 #[tauri::command]
 pub fn set_api_key(api_key: String) -> ApiResponse<String> {
     if api_key.trim().is_empty() {
-        return ApiResponse::error("API key cannot be empty".to_string());
+        return ApiResponse::error("La clé API ne peut pas être vide".to_string());
     }
 
     match Entry::new(SERVICE_NAME, USERNAME) {
         Ok(entry) => match entry.set_password(&api_key) {
-            Ok(_) => ApiResponse::success("API key saved successfully".to_string()),
-            Err(e) => ApiResponse::error(format!("Failed to save API key: {}", e)),
+            Ok(_) => ApiResponse::success("Clé API enregistrée avec succès".to_string()),
+            Err(e) => ApiResponse::error(format!("Échec de l'enregistrement de la clé API : {}", e)),
         },
-        Err(e) => ApiResponse::error(format!("Keyring error: {}", e)),
+        Err(e) => ApiResponse::error(format!("Erreur trousseau : {}", e)),
     }
 }
 
@@ -78,11 +85,11 @@ pub fn set_api_key(api_key: String) -> ApiResponse<String> {
 pub async fn generate_tts(request: GenerateTtsRequest) -> ApiResponse<String> {
     // Validate input
     if request.text.trim().is_empty() {
-        return ApiResponse::error("Text cannot be empty".to_string());
+        return ApiResponse::error("Le texte ne peut pas être vide".to_string());
     }
 
     if request.text.len() > 5000 {
-        return ApiResponse::error("Text exceeds maximum length of 5000 characters".to_string());
+        return ApiResponse::error("Le texte dépasse la longueur maximale de 5000 caractères".to_string());
     }
 
     // Get API key from keyring
@@ -91,18 +98,24 @@ pub async fn generate_tts(request: GenerateTtsRequest) -> ApiResponse<String> {
             Ok(password) => password,
             Err(_) => {
                 return ApiResponse::error(
-                    "API key not found. Please set it in Settings.".to_string(),
+                    "Clé API introuvable. Veuillez la configurer dans Paramètres.".to_string(),
                 )
             }
         },
-        Err(e) => return ApiResponse::error(format!("Keyring error: {}", e)),
+        Err(e) => return ApiResponse::error(format!("Erreur trousseau : {}", e)),
     };
 
-    // Build request body
-    let mut body = HashMap::new();
-    body.insert("text", request.text);
-    body.insert("model_id", "eleven_multilingual_v2".to_string());
-    body.insert("output_format", "mp3_44100_128".to_string());
+    // Build request body with voice settings
+    let body = serde_json::json!({
+        "text": request.text,
+        "model_id": "eleven_multilingual_v2",
+        "output_format": "mp3_44100_128",
+        "voice_settings": {
+            "stability": request.voice_settings.stability,
+            "similarity_boost": request.voice_settings.similarity_boost,
+            "style": request.voice_settings.style,
+        }
+    });
 
     // Make API request
     let client = Client::new();
@@ -125,34 +138,34 @@ pub async fn generate_tts(request: GenerateTtsRequest) -> ApiResponse<String> {
                         let base64_audio = general_purpose::STANDARD.encode(&bytes);
                         ApiResponse::success(base64_audio)
                     }
-                    Err(e) => ApiResponse::error(format!("Failed to read response: {}", e)),
+                    Err(e) => ApiResponse::error(format!("Échec de la lecture de la réponse : {}", e)),
                 }
             } else if status == 401 {
                 ApiResponse::error(
-                    "Invalid API key. Please check your ElevenLabs API key in Settings."
+                    "Clé API invalide. Veuillez vérifier votre clé API ElevenLabs dans Paramètres."
                         .to_string(),
                 )
             } else if status == 429 {
                 ApiResponse::error(
-                    "Rate limit exceeded. Please try again later or upgrade your ElevenLabs plan."
+                    "Limite de débit dépassée. Veuillez réessayer plus tard ou améliorer votre forfait ElevenLabs."
                         .to_string(),
                 )
             } else {
                 match response.text() {
-                    Ok(text) => ApiResponse::error(format!("API error ({}): {}", status, text)),
-                    Err(_) => ApiResponse::error(format!("API error: {}", status)),
+                    Ok(text) => ApiResponse::error(format!("Erreur API ({}) : {}", status, text)),
+                    Err(_) => ApiResponse::error(format!("Erreur API : {}", status)),
                 }
             }
         }
         Err(e) => {
             if e.is_timeout() {
-                ApiResponse::error("Request timeout. Please check your internet connection.".to_string())
+                ApiResponse::error("Délai d'attente dépassé. Veuillez vérifier votre connexion Internet.".to_string())
             } else if e.is_connect() {
                 ApiResponse::error(
-                    "Connection failed. Please check your internet connection.".to_string(),
+                    "Échec de la connexion. Veuillez vérifier votre connexion Internet.".to_string(),
                 )
             } else {
-                ApiResponse::error(format!("Network error: {}", e))
+                ApiResponse::error(format!("Erreur réseau : {}", e))
             }
         }
     }
@@ -168,7 +181,7 @@ pub async fn save_audio_file(
     // Decode base64 to bytes
     let audio_bytes = match general_purpose::STANDARD.decode(&base64_audio) {
         Ok(bytes) => bytes,
-        Err(e) => return ApiResponse::error(format!("Failed to decode audio data: {}", e)),
+        Err(e) => return ApiResponse::error(format!("Échec du décodage des données audio : {}", e)),
     };
 
     // Show save dialog
@@ -180,12 +193,12 @@ pub async fn save_audio_file(
             let path_buf = file_path.as_path().unwrap();
             match std::fs::write(path_buf, audio_bytes) {
                 Ok(_) => ApiResponse::success(format!(
-                    "File saved successfully: {}",
+                    "Fichier enregistré avec succès : {}",
                     path_buf.display()
                 )),
-                Err(e) => ApiResponse::error(format!("Failed to save file: {}", e)),
+                Err(e) => ApiResponse::error(format!("Échec de l'enregistrement du fichier : {}", e)),
             }
         }
-        None => ApiResponse::error("Save cancelled".to_string()),
+        None => ApiResponse::error("Enregistrement annulé".to_string()),
     }
 }

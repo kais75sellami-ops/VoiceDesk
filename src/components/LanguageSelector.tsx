@@ -15,7 +15,7 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
   return (
     <div className="language-selector">
       <label htmlFor="language-select" className="label">
-        Language
+        Langue
       </label>
       <select
         id="language-select"

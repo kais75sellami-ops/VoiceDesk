@@ -15,7 +15,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onSave }) => {
 
   const handleSave = async () => {
     if (!apiKey.trim()) {
-      setError('Please enter an API key');
+      setError('Veuillez entrer une clé API');
       return;
     }
 
@@ -29,15 +29,15 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onSave }) => {
       });
 
       if (response.success) {
-        setSuccess('API key saved successfully!');
+        setSuccess('Clé API enregistrée avec succès !');
         setTimeout(() => {
           onSave();
         }, 1000);
       } else {
-        setError(response.error || 'Failed to save API key');
+        setError(response.error || 'Échec de l\'enregistrement de la clé API');
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An unexpected error occurred');
+      setError(err instanceof Error ? err.message : 'Une erreur inattendue s\'est produite');
     } finally {
       setIsLoading(false);
     }
@@ -53,7 +53,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onSave }) => {
     <div className="modal-overlay" onClick={handleOverlayClick}>
       <div className="modal">
         <div className="modal-header">
-          <h2>Settings</h2>
+          <h2>Paramètres</h2>
           <button className="close-button" onClick={onClose}>
             <svg
               width="24"
@@ -72,24 +72,24 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onSave }) => {
 
         <div className="modal-body">
           <div className="form-group">
-            <label htmlFor="api-key">ElevenLabs API Key</label>
+            <label htmlFor="api-key">Clé API ElevenLabs</label>
             <input
               id="api-key"
               type="password"
               className="input"
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
-              placeholder="Enter your ElevenLabs API key"
+              placeholder="Entrez votre clé API ElevenLabs"
               disabled={isLoading}
             />
             <p className="help-text">
-              Get your API key from{' '}
+              Obtenez votre clé API depuis{' '}
               <a
                 href="https://elevenlabs.io/app/settings/api-keys"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                ElevenLabs Settings
+                Paramètres ElevenLabs
               </a>
             </p>
           </div>
@@ -100,10 +100,10 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onSave }) => {
 
         <div className="modal-footer">
           <button className="button-secondary" onClick={onClose} disabled={isLoading}>
-            Cancel
+            Annuler
           </button>
           <button className="button-primary" onClick={handleSave} disabled={isLoading}>
-            {isLoading ? 'Saving...' : 'Save'}
+            {isLoading ? 'Enregistrement...' : 'Enregistrer'}
           </button>
         </div>
       </div>

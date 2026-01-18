@@ -16,14 +16,14 @@ const TextInput: React.FC<TextInputProps> = ({ value, onChange, disabled = false
   return (
     <div className="text-input-container">
       <label htmlFor="text-input" className="label">
-        Enter Text
+        Saisir le texte
       </label>
       <textarea
         id="text-input"
         className="textarea"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder="Type or paste the text you want to convert to speech..."
+        placeholder="Tapez ou collez le texte que vous souhaitez convertir en audio..."
         disabled={disabled}
         maxLength={MAX_LENGTH}
       />

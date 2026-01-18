@@ -91,13 +91,13 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioData }) => {
       });
 
       if (response.success) {
-        setSaveMessage('File saved successfully!');
+        setSaveMessage('Fichier enregistré avec succès !');
         setTimeout(() => setSaveMessage(null), 3000);
-      } else if (response.error !== 'Save cancelled') {
-        setSaveMessage(response.error || 'Failed to save file');
+      } else if (response.error !== 'Enregistrement annulé') {
+        setSaveMessage(response.error || 'Échec de l\'enregistrement du fichier');
       }
     } catch (err) {
-      setSaveMessage(err instanceof Error ? err.message : 'An unexpected error occurred');
+      setSaveMessage(err instanceof Error ? err.message : 'Une erreur inattendue s\'est produite');
     } finally {
       setIsSaving(false);
     }
@@ -112,7 +112,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioData }) => {
   return (
     <div className="audio-player">
       <div className="audio-controls">
-        <button className="control-button" onClick={handlePlayPause} title={isPlaying ? 'Pause' : 'Play'}>
+        <button className="control-button" onClick={handlePlayPause} title={isPlaying ? 'Pause' : 'Lecture'}>
           {isPlaying ? (
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
               <path d="M6 4H10V20H6V4ZM14 4H18V20H14V4Z" fill="currentColor" />
@@ -124,7 +124,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioData }) => {
           )}
         </button>
 
-        <button className="control-button" onClick={handleStop} title="Stop">
+        <button className="control-button" onClick={handleStop} title="Arrêter">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path d="M6 6H18V18H6V6Z" fill="currentColor" />
           </svg>
@@ -147,7 +147,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioData }) => {
           className="download-button"
           onClick={handleDownload}
           disabled={isSaving}
-          title="Download MP3"
+          title="Télécharger MP3"
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path
@@ -155,12 +155,12 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioData }) => {
               fill="currentColor"
             />
           </svg>
-          {isSaving ? 'Saving...' : 'Download'}
+          {isSaving ? 'Enregistrement...' : 'Télécharger'}
         </button>
       </div>
 
       {saveMessage && (
-        <div className={saveMessage.includes('success') ? 'success-message' : 'error-message'}>
+        <div className={saveMessage.includes('succès') ? 'success-message' : 'error-message'}>
           {saveMessage}
         </div>
       )}
