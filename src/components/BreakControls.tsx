@@ -1,7 +1,6 @@
 import { useState } from 'react';
 
 export interface BreakSettings {
-  commaBreak: number;
   periodBreak: number;
 }
 
@@ -12,11 +11,10 @@ interface BreakControlsProps {
 
 const BreakControls = ({ onApply, disabled = false }: BreakControlsProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [commaBreak, setCommaBreak] = useState(0.3);
-  const [periodBreak, setPeriodBreak] = useState(1);
+  const [periodBreak, setPeriodBreak] = useState(0.3);
 
   const handleApply = () => {
-    onApply({ commaBreak, periodBreak });
+    onApply({ periodBreak });
   };
 
   return (
@@ -45,43 +43,22 @@ const BreakControls = ({ onApply, disabled = false }: BreakControlsProps) => {
         <div className="break-controls-content">
           <div className="break-control-item">
             <div className="break-control-header">
-              <label htmlFor="comma-break">Pause virgule (,)</label>
-              <span className="break-control-value">{commaBreak.toFixed(1)}s</span>
-            </div>
-            <input
-              id="comma-break"
-              type="range"
-              min="0.1"
-              max="0.9"
-              step="0.1"
-              value={commaBreak}
-              onChange={(e) => setCommaBreak(parseFloat(e.target.value))}
-              disabled={disabled}
-              className="break-slider"
-            />
-            <p className="break-control-description">
-              Durée de la pause après chaque virgule (0.1s à 0.9s)
-            </p>
-          </div>
-
-          <div className="break-control-item">
-            <div className="break-control-header">
               <label htmlFor="period-break">Pause point (.)</label>
               <span className="break-control-value">{periodBreak.toFixed(1)}s</span>
             </div>
             <input
               id="period-break"
               type="range"
-              min="1"
+              min="0.1"
               max="8"
-              step="0.5"
+              step="0.1"
               value={periodBreak}
               onChange={(e) => setPeriodBreak(parseFloat(e.target.value))}
               disabled={disabled}
               className="break-slider"
             />
             <p className="break-control-description">
-              Durée de la pause après chaque point (1s à 8s)
+              Durée de la pause après chaque point (0.1s à 8s)
             </p>
           </div>
 

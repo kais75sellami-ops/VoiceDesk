@@ -35,3 +35,8 @@ pnpm-debug.log*
 
 # Icon generation
 icon.iconset/
+
+# Fichiers d'installation binaires
+installation/*.dmg
+installation/*.msi
+installation/*.exe

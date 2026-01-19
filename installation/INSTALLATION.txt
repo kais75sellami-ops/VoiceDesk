@@ -1,0 +1,70 @@
+═══════════════════════════════════════════════════════════
+                    VOICEDESK v0.1.0
+         Application de synthèse vocale ElevenLabs
+═══════════════════════════════════════════════════════════
+
+📦 FICHIERS D'INSTALLATION:
+
+🍎 macOS (Apple Silicon):
+   └─ VoiceDesk_0.1.0_aarch64.dmg (3.9 MB)
+
+🪟 Windows:
+   ├─ VoiceDesk_0.1.0_x64_en-US.msi (3.7 MB) - Installateur
+   └─ VoiceDesk.exe (11 MB) - Version portable
+
+═══════════════════════════════════════════════════════════
+
+📥 INSTALLATION:
+
+🍎 macOS:
+   1. Double-cliquez sur VoiceDesk_0.1.0_aarch64.dmg
+   2. Glissez VoiceDesk vers Applications
+   3. Au premier lancement:
+      Réglages Système > Confidentialité et sécurité
+      > Ouvrir quand même
+
+🪟 Windows (Option 1 - Installateur):
+   1. Double-cliquez sur VoiceDesk_0.1.0_x64_en-US.msi
+   2. Suivez l'assistant d'installation
+   3. Lancez depuis le menu Démarrer
+
+🪟 Windows (Option 2 - Portable):
+   1. Copiez VoiceDesk.exe où vous voulez
+   2. Double-cliquez pour lancer (pas d'installation)
+
+═══════════════════════════════════════════════════════════
+
+✨ FONCTIONNALITÉS:
+
+✓ Synthèse vocale ElevenLabs
+✓ Paramètres de voix ajustables:
+  • Stabilité (0.0 - 1.0)
+  • Amplification de similarité (0.0 - 1.0)
+  • Style (0.0 - 1.0)
+✓ Contrôles de pauses SSML:
+  • Pause virgule (0.1s - 0.9s)
+  • Pause point (1s - 8s)
+✓ Interface en français
+✓ Support multi-langues (Anglais, Français, Espagnol, etc.)
+✓ Lecteur audio intégré
+✓ Téléchargement MP3
+✓ Stockage sécurisé de la clé API
+
+═══════════════════════════════════════════════════════════
+
+⚙️ CONFIGURATION:
+
+Au premier lancement, vous devrez configurer votre clé API
+ElevenLabs:
+
+1. Cliquez sur ⚙️ Paramètres
+2. Obtenez votre clé API sur:
+   https://elevenlabs.io/app/settings/api-keys
+3. Collez la clé et cliquez sur Enregistrer
+
+═══════════════════════════════════════════════════════════
+
+📄 LICENCE: MIT
+🌐 GitHub: https://github.com/kais75sellami-ops/VoiceDesk
+
+═══════════════════════════════════════════════════════════

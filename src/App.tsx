@@ -75,17 +75,14 @@ function App() {
     // Supprimer toutes les anciennes balises <break time="..."/>
     let newText = text.replace(/<break time="[^"]*"\/>/g, '');
 
-    // Utiliser des placeholders temporaires pour éviter les conflits
-    const COMMA_PLACEHOLDER = '###COMMA_BREAK###';
+    // Utiliser un placeholder temporaire pour éviter les conflits
     const PERIOD_PLACEHOLDER = '###PERIOD_BREAK###';
 
-    // Remplacer virgules et points par des placeholders
-    newText = newText.replace(/,/g, COMMA_PLACEHOLDER);
-    newText = newText.replace(/\.{3,}/g, PERIOD_PLACEHOLDER); // Points de suspension (3 ou +)
-    newText = newText.replace(/\./g, PERIOD_PLACEHOLDER); // Points simples
+    // Remplacer les points de suspension (3 ou +) puis les points simples
+    newText = newText.replace(/\.{3,}/g, PERIOD_PLACEHOLDER);
+    newText = newText.replace(/\./g, PERIOD_PLACEHOLDER);
 
-    // Remplacer les placeholders par les vraies balises
-    newText = newText.replace(new RegExp(COMMA_PLACEHOLDER, 'g'), `<break time="${settings.commaBreak.toFixed(1)}s"/>`);
+    // Remplacer le placeholder par la vraie balise
     newText = newText.replace(new RegExp(PERIOD_PLACEHOLDER, 'g'), `<break time="${settings.periodBreak.toFixed(1)}s"/>`);
 
     setText(newText);
